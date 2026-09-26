@@ -27,7 +27,6 @@
    change the array  ->  call renderTasks()  ->  page redraws
    ============================================================ */
 
-
 /* ===== THE DATA (given) =====
    Each task is an object with three keys:
    id    a unique number, so we can tell tasks apart
@@ -37,16 +36,16 @@
 let tasks = [
   { id: 1, text: "Check the rover battery", done: false },
   { id: 2, text: "Review the Mars landing map", done: true },
-  { id: 3, text: "Brief Rania on the launch plan", done: false }
+  { id: 3, text: "Brief Rania on the launch plan", done: false },
 ];
 
 // The id the NEXT new task will get. Increase it after every add.
 let nextId = 4;
 
-
 /* ============================================================
    STEP 1: SELECT THE ELEMENTS
    TODO: Store each of these elements in a const variable.
+
 
    IDs you need:
    task-form, task-input, task-list, counter, empty-msg, clear-done
@@ -58,6 +57,12 @@ let nextId = 4;
 
 // your code here
 
+const form = document.getElementById("task-form");
+const input = document.getElementById("task-input");
+const list = document.getElementById("task-list");
+const counter = document.getElementById("counter");
+const emptyMsg = document.getElementById("empty-msg");
+const clearDoneBtn = document.getElementById("clear-done");
 
 /* ============================================================
    STEP 2: WRITE THE renderTasks() FUNCTION
@@ -91,15 +96,37 @@ let nextId = 4;
 
 function renderTasks() {
   // your code here
-}
 
+  list.innerHTML = "";
+
+  for (const task of tasks) {
+    const li = document.createElement("li");
+    li.dataset.id = task.id;
+
+    const span = document.createElement("span");
+    span.textContent = task.text;
+    span.classList.add("task-text");
+
+    const deleteBtn = document.createElement("span");
+    deleteBtn.textContent = "Delete";
+    deleteBtn.classList.add("delete-btn");
+
+    li.appendChild(span);
+    li.appendChild(deleteBtn);
+
+    if (task.done) {
+      li.classList.add("done");
+    }
+
+    list.appendChild(li);
+  }
+}
 
 /* ============================================================
    STEP 3: CALL renderTasks() ON PAGE LOAD
    TODO: Scroll to the very bottom of this file and call the
    function there, so the list appears when the page opens.
    ============================================================ */
-
 
 /* ============================================================
    STEP 4: WRITE THE updateCounter() FUNCTION
@@ -116,8 +143,22 @@ function renderTasks() {
 
 function updateCounter() {
   // your code here
-}
 
+  let remaining = 0;
+  for (const task of tasks) {
+    if (task.done === false) {
+      remaining += 1;
+    }
+  }
+
+  counter.textContent = remaining + "task(s) remaining";
+
+  if (tasks.length === 0) {
+    emptyMsg.classList.remove("hidden");
+  } else {
+    emptyMsg.classList.add("hidden");
+  }
+}
 
 /* ============================================================
    STEP 5: ADD A NEW TASK WITH THE FORM
@@ -138,6 +179,22 @@ function updateCounter() {
 
 // your code here
 
+form.addEventListener("submit", function (event) {
+  event.preventDefault();
+
+  const text = input.value.trim();
+
+  if (text === "") {
+    return;
+  }
+
+  const newTask = { id: nextId, text: text, done: false };
+  tasks.push(newTask);
+  nextId = nextId + 1;
+  input.value = "";
+
+  renderTasks();
+});
 
 /* ============================================================
    STEP 6: TOGGLE DONE AND DELETE (event delegation)
@@ -171,7 +228,6 @@ function updateCounter() {
 
 // your code here
 
-
 /* ============================================================
    STEP 7: CLEAR COMPLETED TASKS
    TODO: Listen for "click" on the clear-done button.
@@ -183,7 +239,6 @@ function updateCounter() {
    ============================================================ */
 
 // your code here
-
 
 /* ============================================================
    BONUS CHALLENGES (for those who finish early)
@@ -210,5 +265,5 @@ function updateCounter() {
       Hint: continue skips the current loop round
    ============================================================ */
 
-
 /* ===== STEP 3 GOES HERE: call renderTasks() ===== */
+renderTasks();
