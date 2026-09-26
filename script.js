@@ -330,16 +330,14 @@ input.addEventListener("input", function () {
 
 for (const button of filterButtons) {
   button.addEventListener("click", function () {
-    // Remember the chosen filter
     currentFilter = button.dataset.filter;
 
-    // Move the "active" class to the clicked button
+
     for (const btn of filterButtons) {
       btn.classList.remove("active");
     }
     button.classList.add("active");
 
-    // Redraw with the new filter
     renderTasks();
   });
 }
