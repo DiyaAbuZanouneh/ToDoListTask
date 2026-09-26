@@ -42,6 +42,8 @@ let tasks = [
 // The id the NEXT new task will get. Increase it after every add.
 let nextId = 4;
 
+let currentFilter = "all";
+
 /* ============================================================
    STEP 1: SELECT THE ELEMENTS
    TODO: Store each of these elements in a const variable.
@@ -63,6 +65,9 @@ const list = document.getElementById("task-list");
 const counter = document.getElementById("counter");
 const emptyMsg = document.getElementById("empty-msg");
 const clearDoneBtn = document.getElementById("clear-done");
+
+const charCount = document.getElementById("char-count");
+const filterButtons = document.querySelectorAll(".filter-btn");
 
 /* ============================================================
    STEP 2: WRITE THE renderTasks() FUNCTION
@@ -100,6 +105,13 @@ function renderTasks() {
   list.innerHTML = "";
 
   for (const task of tasks) {
+    if (currentFilter === "active" && task.done) {
+      continue;
+    }
+    if (currentFilter === "done" && !task.done) {
+      continue;
+    }
+
     const li = document.createElement("li");
     li.dataset.id = task.id;
 
@@ -107,7 +119,7 @@ function renderTasks() {
     span.textContent = task.text;
     span.classList.add("task-text");
 
-    const deleteBtn = document.createElement("span");
+    const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "Delete";
     deleteBtn.classList.add("delete-btn");
 
@@ -120,6 +132,8 @@ function renderTasks() {
 
     list.appendChild(li);
   }
+
+  updateCounter();
 }
 
 /* ============================================================
@@ -151,7 +165,7 @@ function updateCounter() {
     }
   }
 
-  counter.textContent = remaining + "task(s) remaining";
+  counter.textContent = remaining + " task(s) remaining";
 
   if (tasks.length === 0) {
     emptyMsg.classList.remove("hidden");
@@ -188,10 +202,17 @@ form.addEventListener("submit", function (event) {
     return;
   }
 
+  for (const task of tasks) {
+    if (task.text.toLowerCase() === text.toLowerCase()) {
+      return;
+    }
+  }
+
   const newTask = { id: nextId, text: text, done: false };
   tasks.push(newTask);
   nextId = nextId + 1;
   input.value = "";
+  charCount.textContent = "0 / 50";
 
   renderTasks();
 });
@@ -228,6 +249,33 @@ form.addEventListener("submit", function (event) {
 
 // your code here
 
+list.addEventListener("click", function (event) {
+  const target = event.target;
+
+  const li = target.parentElement;
+  const id = Number(li.dataset.id);
+
+  if (target.classList.contains("task-text")) {
+    for (const task of tasks) {
+      if (task.id === id) {
+        task.done = !task.done;
+      }
+    }
+    renderTasks();
+  }
+
+  if (target.classList.contains("delete-btn")) {
+    const newArray = [];
+    for (const task of tasks) {
+      if (task.id !== id) {
+        newArray.push(task);
+      }
+    }
+    tasks = newArray;
+    renderTasks();
+  }
+});
+
 /* ============================================================
    STEP 7: CLEAR COMPLETED TASKS
    TODO: Listen for "click" on the clear-done button.
@@ -239,6 +287,17 @@ form.addEventListener("submit", function (event) {
    ============================================================ */
 
 // your code here
+
+clearDoneBtn.addEventListener("click", function () {
+  const stillToDo = [];
+  for (const task of tasks) {
+    if (task.done === false) {
+      stillToDo.push(task);
+    }
+  }
+  tasks = stillToDo;
+  renderTasks();
+});
 
 /* ============================================================
    BONUS CHALLENGES (for those who finish early)
@@ -264,6 +323,26 @@ form.addEventListener("submit", function (event) {
       "done"   shows only done tasks
       Hint: continue skips the current loop round
    ============================================================ */
+
+input.addEventListener("input", function () {
+  charCount.textContent = input.value.length + " / 50";
+});
+
+for (const button of filterButtons) {
+  button.addEventListener("click", function () {
+    // Remember the chosen filter
+    currentFilter = button.dataset.filter;
+
+    // Move the "active" class to the clicked button
+    for (const btn of filterButtons) {
+      btn.classList.remove("active");
+    }
+    button.classList.add("active");
+
+    // Redraw with the new filter
+    renderTasks();
+  });
+}
 
 /* ===== STEP 3 GOES HERE: call renderTasks() ===== */
 renderTasks();
